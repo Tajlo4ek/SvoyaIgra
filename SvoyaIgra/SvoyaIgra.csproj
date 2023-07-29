@@ -179,4 +179,14 @@
     <None Include="Resources\noimg.jpg" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>md  $(TargetDir)\Resources
+xcopy $(ProjectDir)Resources $(TargetDir)\Resources\ /Y /S /E
+
+rd $(TargetDir)\bin
+md $(TargetDir)\bin
+move $(TargetDir)*.dll $(TargetDir)bin\
+move $(TargetDir)*.xml $(TargetDir)bin\ 
+move $(TargetDir)*.pdb $(TargetDir)bin\</PostBuildEvent>
+  </PropertyGroup>
 </Project>
