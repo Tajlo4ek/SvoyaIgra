@@ -112,7 +112,10 @@ namespace DataStore
                         }
                         else if (paramName.Equals("cost"))
                         {
-                            cost = int.Parse(param.InnerText);
+                            if (int.TryParse(param.InnerText, out cost) == false)
+                            {
+                                cost = new Random().Next(100, 1000);
+                            }
                         }
                     }
                     ThemeName = theme;
