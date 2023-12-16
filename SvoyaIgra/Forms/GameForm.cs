@@ -443,7 +443,7 @@ namespace SvoyaIgra.Forms
                 lock (locker)
                 {
                     toEnd = false;
-                    videoPlayer.Ctlcontrols.pause();
+                    videoPlayer.Ctlcontrols.stop();
                     videoPlayer.URL = "";
                     mediaTimer.Stop();
 
