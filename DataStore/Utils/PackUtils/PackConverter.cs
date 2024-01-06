@@ -1,10 +1,15 @@
-﻿using System;
+﻿using DataStore.Exceptions;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Runtime.Serialization;
+using System.Text;
 using System.Xml;
+using System.Xml.Linq;
+using static DataStore.Question;
+using static DataStore.Scenario;
 
 namespace DataStore.Utils.PackUtils
 {
@@ -59,7 +64,7 @@ namespace DataStore.Utils.PackUtils
 
             process?.Invoke("start parse content");
 
-            var package = new Package(root, rename, packManager);
+            var package = ParseXml(root, rename, packManager);//new Package(root, rename, packManager);
 
             process?.Invoke("end parse content");
 
@@ -191,6 +196,351 @@ namespace DataStore.Utils.PackUtils
         {
             DeleteDirectory(path);
             CreateDirectory(path);
+        }
+
+        private static Package ParseXml(XmlElement root, Dictionary<string, string> rename, PackManager packManager)
+        {
+            int.TryParse(root.GetAttribute("version"), out var version);
+
+            switch (version)
+            {
+                case 4:
+                    return ParseXmlVersion_4(root, rename, packManager);
+                case 5:
+                    return ParseXmlVersion_5(root, rename, packManager);
+                default:
+                    throw new BadFileException("unknow version: " + version);
+            }
+        }
+
+        private static Package ParseXmlVersion_4(XmlElement root, Dictionary<string, string> rename, PackManager packManager)
+        {
+            var rounds = new List<Round>();
+
+            foreach (var roundsDataXml in Utils.MyXmlUtils.GetNodeWithName(root, "rounds"))
+            {
+                foreach (var roundXml in Utils.MyXmlUtils.GetNodeWithName(roundsDataXml, "round"))
+                {
+                    var themes = new List<Theme>();
+                    foreach (var themesXml in Utils.MyXmlUtils.GetNodeWithName(roundXml, "themes"))
+                    {
+                        foreach (var themeXml in Utils.MyXmlUtils.GetNodeWithName(themesXml, "theme"))
+                        {
+                            var themeName = themeXml.GetAttribute("name");
+
+                            var questions = new List<Question>();
+
+                            foreach (var questionsXml in Utils.MyXmlUtils.GetNodeWithName(themeXml, "questions"))
+                            {
+                                foreach (var questionXml in Utils.MyXmlUtils.GetNodeWithName(questionsXml, "question"))
+                                {
+                                    var cost = int.Parse(questionXml.GetAttribute("price"));
+
+                                    var scenarios = new List<Scenario>();
+                                    var answer = new List<Scenario>();
+
+                                    StringBuilder sb = new StringBuilder();
+
+                                    foreach (var right in Utils.MyXmlUtils.GetNodeWithName(questionXml, "right"))
+                                    {
+                                        foreach (var anwer in Utils.MyXmlUtils.GetNodeWithName(right, "answer"))
+                                        {
+                                            sb.AppendLine(anwer.InnerText);
+                                        }
+                                    }
+
+                                    foreach (var scenariosXml in Utils.MyXmlUtils.GetNodeWithName(questionXml, "scenario"))
+                                    {
+                                        foreach (var scenarioXml in Utils.MyXmlUtils.GetNodeWithName(scenariosXml, "atom"))
+                                        {
+                                            ScenarioType type = ScenarioType.Text;
+                                            switch (scenarioXml.GetAttribute("type"))
+                                            {
+                                                case "image":
+                                                    type = ScenarioType.Image;
+                                                    break;
+
+                                                case "video":
+                                                    type = ScenarioType.Video;
+                                                    break;
+
+                                                case "voice":
+                                                    type = ScenarioType.Audio;
+                                                    break;
+
+                                                case "marker":
+                                                    type = ScenarioType.Marker;
+                                                    break;
+
+                                                default:
+                                                    type = ScenarioType.Text;
+                                                    break;
+                                            }
+
+                                            int.TryParse(scenarioXml.GetAttribute("time"), out int delay);
+                                            var time = delay == 0 ? -1 : delay;
+
+                                            var Data = scenarioXml.InnerText;
+                                            if (Data.StartsWith("@"))
+                                            {
+                                                try
+                                                {
+                                                    Data = "@" + rename[Uri.EscapeUriString(Data.Substring(1))];
+                                                }
+                                                catch
+                                                {
+                                                    Data = "Отсутствует файл: " + Data;
+                                                    type = ScenarioType.Text;
+                                                }
+                                            }
+
+                                            if (type != ScenarioType.Text && type != ScenarioType.Marker)
+                                            {
+                                                Data = packManager.AddToPackFolder(Data);
+                                            }
+
+                                            scenarios.Add(new Scenario(Data, type, time));
+                                        }
+                                    }
+
+                                    var questionType = QuestionType.Normal;
+                                    var specialCost = 0;
+                                    var ThemeName = "";
+
+                                    foreach (var typeXml in Utils.MyXmlUtils.GetNodeWithName(questionXml, "type"))
+                                    {
+                                        var questionTypeName = typeXml.GetAttribute("name");
+                                        if (questionTypeName.Equals("cat") || questionTypeName.Equals("bagcat"))
+                                        {
+                                            questionType = QuestionType.Bagcat;
+
+                                            foreach (var param in Utils.MyXmlUtils.GetNodeWithName(typeXml, "param"))
+                                            {
+                                                var paramName = param.GetAttribute("name");
+                                                if (paramName.Equals("theme"))
+                                                {
+                                                    ThemeName = param.InnerText;
+                                                }
+                                                else if (paramName.Equals("cost"))
+                                                {
+                                                    if (int.TryParse(param.InnerText, out specialCost) == false)
+                                                    {
+                                                        specialCost = new Random().Next(100, 1000);
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        else if (questionTypeName.Equals("auction"))
+                                        {
+                                            questionType = QuestionType.Auction;
+                                        }
+                                    }
+
+                                    int markerId = -1;
+                                    for (int scId = 0; scId < scenarios.Count; scId++)
+                                    {
+                                        if (scenarios[scId].Type == Scenario.ScenarioType.Marker)
+                                        {
+                                            markerId = scId;
+                                            break;
+                                        }
+                                    }
+
+                                    if (markerId != -1)
+                                    {
+                                        for (int scId = markerId + 1; scId < scenarios.Count; scId++)
+                                        {
+                                            answer.Add(scenarios[scId]);
+                                        }
+
+                                        for (int scId = scenarios.Count - 1; scId >= markerId; scId--)
+                                        {
+                                            scenarios.RemoveAt(scId);
+                                        }
+                                    }
+
+                                    answer.Add(new Scenario(sb.ToString(), Scenario.ScenarioType.Text));
+                                    questions.Add(new Question(scenarios, answer, cost, questionType, themeName, specialCost));
+                                }
+                            }
+
+                            themes.Add(new Theme(themeName, questions));
+                        }
+                    }
+                    rounds.Add(new Round(roundXml.GetAttribute("name"), themes, roundXml.GetAttribute("type").Equals("final")));
+                }
+            }
+
+            var infoData = Utils.MyXmlUtils.GetNodeWithName(root, "info");
+            var packInfo = infoData.Count > 0 ? new PackInfo(infoData[0]) : new PackInfo("No data");
+            return new Package(root.GetAttribute("name"), rounds, packInfo);
+        }
+
+        private static Package ParseXmlVersion_5(XmlElement root, Dictionary<string, string> rename, PackManager packManager)
+        {
+            var rounds = new List<Round>();
+
+            foreach (var roundsDataXml in Utils.MyXmlUtils.GetNodeWithName(root, "rounds"))
+            {
+                foreach (var roundXml in Utils.MyXmlUtils.GetNodeWithName(roundsDataXml, "round"))
+                {
+                    var themes = new List<Theme>();
+                    foreach (var themesXml in Utils.MyXmlUtils.GetNodeWithName(roundXml, "themes"))
+                    {
+                        foreach (var themeXml in Utils.MyXmlUtils.GetNodeWithName(themesXml, "theme"))
+                        {
+                            var themeName = themeXml.GetAttribute("name");
+
+                            var questions = new List<Question>();
+
+                            foreach (var questionsXml in Utils.MyXmlUtils.GetNodeWithName(themeXml, "questions"))
+                            {
+                                foreach (var questionXml in Utils.MyXmlUtils.GetNodeWithName(questionsXml, "question"))
+                                {
+                                    var cost = int.Parse(questionXml.GetAttribute("price"));
+
+                                    var questionTypeString = questionXml.GetAttribute("type");
+                                    var questionType = QuestionType.Normal;
+
+                                    if (questionTypeString.Equals("noRisk", StringComparison.OrdinalIgnoreCase))
+                                    {
+                                        questionType = QuestionType.NoRisk;
+                                    }
+
+                                    var scenarios = new List<Scenario>();
+                                    var answer = new List<Scenario>();
+
+
+                                    var specialTheme = "";
+                                    var specialCost = cost;
+
+                                    StringBuilder sb = new StringBuilder();
+
+                                    foreach (var right in Utils.MyXmlUtils.GetNodeWithName(questionXml, "right"))
+                                    {
+                                        foreach (var anwer in Utils.MyXmlUtils.GetNodeWithName(right, "answer"))
+                                        {
+                                            sb.AppendLine(anwer.InnerText);
+                                        }
+                                    }
+
+
+                                    foreach (var paramsXml in Utils.MyXmlUtils.GetNodeWithName(questionXml, "params"))
+                                    {
+                                        foreach (var paramXml in Utils.MyXmlUtils.GetNodeWithName(paramsXml, "param"))
+                                        {
+                                            var paramType = paramXml.GetAttribute("type");
+                                            var paramName = paramXml.GetAttribute("name");
+
+                                            if (paramName.Equals("answer") || paramName.Equals("question"))
+                                            {
+                                                bool isAnswer = paramName.Equals("answer");
+
+                                                foreach (var itemXml in Utils.MyXmlUtils.GetNodeWithName(paramXml, "item"))
+                                                {
+                                                    ScenarioType type = ScenarioType.Text;
+                                                    switch (itemXml.GetAttribute("type"))
+                                                    {
+                                                        case "image":
+                                                            type = ScenarioType.Image;
+                                                            break;
+
+                                                        case "video":
+                                                            type = ScenarioType.Video;
+                                                            break;
+
+                                                        case "audio":
+                                                            type = ScenarioType.Audio;
+                                                            break;
+
+                                                        default:
+                                                            type = ScenarioType.Text;
+                                                            break;
+                                                    }
+
+                                                    int.TryParse(itemXml.GetAttribute("time"), out int delay);
+                                                    var time = delay == 0 ? -1 : delay;
+
+                                                    var Data = itemXml.InnerText;
+                                                    if (itemXml.GetAttribute("isRef").ToLower().Equals("true"))
+                                                    {
+                                                        try
+                                                        {
+                                                            Data = "@" + rename[Uri.EscapeUriString(Data)];
+                                                        }
+                                                        catch (Exception)
+                                                        {
+                                                            Data = "Отсутствует файл: " + Data;
+                                                            type = ScenarioType.Text;
+                                                        }
+                                                    }
+
+                                                    if (type != ScenarioType.Text && type != ScenarioType.Marker)
+                                                    {
+                                                        Data = packManager.AddToPackFolder(Data);
+                                                    }
+
+                                                    if (isAnswer)
+                                                    {
+                                                        answer.Add(new Scenario(Data, type, time));
+                                                    }
+                                                    else
+                                                    {
+                                                        scenarios.Add(new Scenario(Data, type, time));
+                                                    }
+                                                }
+                                            }
+                                            else if (paramName.Equals("theme"))
+                                            {
+                                                specialTheme = paramXml.InnerText;
+                                            }
+                                            else if (paramName.Equals("selectionMode"))
+                                            {
+                                                if (questionType == QuestionType.NoRisk)
+                                                {
+                                                    continue;
+                                                }
+
+                                                if (paramXml.InnerText.Equals("exceptCurrent"))
+                                                {
+                                                    questionType = QuestionType.Auction;
+                                                }
+                                                else if (paramsXml.InnerText.Equals("any"))
+                                                {
+                                                    questionType = QuestionType.Bagcat;
+                                                }
+                                            }
+                                            else if (paramName.Equals("price"))
+                                            {
+                                                var numberSet = Utils.MyXmlUtils.GetNodeWithName(paramsXml, "numberSet");
+                                                if (numberSet.Count == 0)
+                                                {
+                                                    continue;
+                                                }
+
+                                                int.TryParse(numberSet[0].GetAttribute("minimum"), out int min);
+                                                int.TryParse(numberSet[0].GetAttribute("maximum"), out int max);
+
+                                                specialCost = Math.Max(cost, min);
+                                            }
+                                        }
+                                    }
+
+                                    answer.Add(new Scenario(sb.ToString(), Scenario.ScenarioType.Text));
+                                    questions.Add(new Question(scenarios, answer, cost, questionType, themeName, specialCost));
+                                }
+                            }
+
+                            themes.Add(new Theme(themeName, questions));
+                        }
+                    }
+                    rounds.Add(new Round(roundXml.GetAttribute("name"), themes, roundXml.GetAttribute("type").Equals("final")));
+                }
+            }
+
+            var infoData = Utils.MyXmlUtils.GetNodeWithName(root, "info");
+            var packInfo = infoData.Count > 0 ? new PackInfo(infoData[0]) : new PackInfo("No data");
+            return new Package(root.GetAttribute("name"), rounds, packInfo);
         }
 
     }

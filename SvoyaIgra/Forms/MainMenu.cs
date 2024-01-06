@@ -10,9 +10,17 @@ namespace SvoyaIgra.Forms
 
         private const string ConfigName = @"config.cfg";
 
+        private static MainMenu instance;
+
+        public static void ShowMain()
+        {
+            instance.Show();
+        }
+
         public MainMenu()
         {
             InitializeComponent();
+            instance = this;
         }
 
         private bool ValidateIp()
@@ -43,6 +51,7 @@ namespace SvoyaIgra.Forms
             if (ValidateIp())
             {
                 new Utils.Controllers.GameController(true, tbInputIp.Text, tbInputNick.Text, tbImg.Text, packPath);
+                this.Hide();
             }
             else
             {
@@ -56,6 +65,7 @@ namespace SvoyaIgra.Forms
             if (ValidateIp())
             {
                 new Utils.Controllers.GameController(false, tbInputIp.Text, tbInputNick.Text, tbImg.Text);
+                this.Hide();
             }
             else
             {

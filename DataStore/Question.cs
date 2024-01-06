@@ -17,6 +17,7 @@ namespace DataStore
             Normal,
             Bagcat,
             Auction,
+            NoRisk,
         }
 
         [DataMember]
@@ -38,6 +39,8 @@ namespace DataStore
 
         public bool IsAuction { get { return questionType == QuestionType.Auction; } }
 
+        public bool IsNoRisk { get { return questionType == QuestionType.NoRisk; } }
+
         public bool IsNormal { get { return questionType == QuestionType.Normal; } }
 
         [DataMember]
@@ -47,7 +50,7 @@ namespace DataStore
         public int SpecialCost { get; private set; }
 
         [DataMember]
-        private readonly QuestionType questionType;
+        public readonly QuestionType questionType;
 
         public bool IsUsed { get; private set; }
 
@@ -65,95 +68,6 @@ namespace DataStore
                 return answers[id];
 
             throw new Exception("out of range");
-        }
-
-        public Question(XmlElement item, Dictionary<string, string> rename, PackManager packManager)
-        {
-            Cost = int.Parse(item.GetAttribute("price"));
-            questionType = QuestionType.Normal;
-            ThemeName = "";
-
-            var scenarios = new List<Scenario>();
-            var answer = new List<Scenario>();
-
-            StringBuilder sb = new StringBuilder();
-
-            foreach (var right in Utils.MyXmlUtils.GetNodeWithName(item, "right"))
-            {
-                foreach (var anwer in Utils.MyXmlUtils.GetNodeWithName(right, "answer"))
-                {
-                    sb.AppendLine(anwer.InnerText);
-                }
-            }
-
-            foreach (var scenariosXml in Utils.MyXmlUtils.GetNodeWithName(item, "scenario"))
-            {
-                foreach (var scenario in Utils.MyXmlUtils.GetNodeWithName(scenariosXml, "atom"))
-                {
-                    scenarios.Add(new Scenario(scenario, rename, packManager));
-                }
-            }
-
-            foreach (var typeXml in Utils.MyXmlUtils.GetNodeWithName(item, "type"))
-            {
-                var name = typeXml.GetAttribute("name");
-                if (name.Equals("cat") || name.Equals("bagcat"))
-                {
-                    string theme = "";
-                    int cost = 0;
-                    questionType = QuestionType.Bagcat;
-
-                    foreach (var param in Utils.MyXmlUtils.GetNodeWithName(typeXml, "param"))
-                    {
-                        var paramName = param.GetAttribute("name");
-                        if (paramName.Equals("theme"))
-                        {
-                            theme = param.InnerText;
-                        }
-                        else if (paramName.Equals("cost"))
-                        {
-                            if (int.TryParse(param.InnerText, out cost) == false)
-                            {
-                                cost = new Random().Next(100, 1000);
-                            }
-                        }
-                    }
-                    ThemeName = theme;
-                    SpecialCost = cost;
-                }
-                else if (name.Equals("auction"))
-                {
-                    questionType = QuestionType.Auction;
-                }
-            }
-
-            int markerId = -1;
-            for (int scId = 0; scId < scenarios.Count; scId++)
-            {
-                if (scenarios[scId].Type == Scenario.ScenarioType.Marker)
-                {
-                    markerId = scId;
-                    break;
-                }
-            }
-
-            if (markerId != -1)
-            {
-                for (int scId = markerId + 1; scId < scenarios.Count; scId++)
-                {
-                    answer.Add(scenarios[scId]);
-                }
-
-                for (int scId = scenarios.Count - 1; scId >= markerId; scId--)
-                {
-                    scenarios.RemoveAt(scId);
-                }
-            }
-
-            answer.Add(new Scenario(sb.ToString(), Scenario.ScenarioType.Text));
-
-            this.scenarios = scenarios.ToArray();
-            this.answers = answer.ToArray();
         }
 
         public Question(List<Scenario> qScenario, List<Scenario> aScenario, int cost, QuestionType questionType)

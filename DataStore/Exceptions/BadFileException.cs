@@ -12,5 +12,10 @@ namespace DataStore.Exceptions
         {
 
         }
+
+        public BadFileException(string message) : base(message)
+        {
+
+        }
     }
 }

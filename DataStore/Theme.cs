@@ -30,25 +30,6 @@ namespace DataStore
             throw new Exception("out of range");
         }
 
-        public Theme(XmlElement item, Dictionary<string, string> rename, PackManager packManager)
-        {
-            Name = item.GetAttribute("name");
-
-            var questions = new List<Question>();
-
-
-            foreach (var questionsXml in Utils.MyXmlUtils.GetNodeWithName(item, "questions"))
-            {
-                foreach (var question in Utils.MyXmlUtils.GetNodeWithName(questionsXml, "question"))
-                {
-                    questions.Add(new Question(question, rename, packManager));
-                }
-            }
-
-            this.questions = questions.ToArray();
-
-        }
-
         public Theme(string name, List<Question> questions)
         {
             this.Name = name;

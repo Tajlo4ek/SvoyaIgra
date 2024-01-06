@@ -20,6 +20,7 @@ namespace Editor.MyControl
         private const string typeNormalString = "Обычный";
         private const string typeCatString = "Кот в мешке";
         private const string typeAuctionString = "Аукцион";
+        private const string typeNoRiskString = "Без риска";
 
         public Action<QuestionControl> DeleteAction;
 
@@ -43,6 +44,7 @@ namespace Editor.MyControl
             cbType.Items.Add(typeNormalString);
             cbType.Items.Add(typeCatString);
             cbType.Items.Add(typeAuctionString);
+            cbType.Items.Add(typeNoRiskString);
 
             cbType.SelectedItem = typeNormalString;
 
@@ -70,10 +72,6 @@ namespace Editor.MyControl
             var answers = answerView.GetData();
             var questions = questionView.GetData();
 
-            //TODO:
-            //ValidateScenarios(ref answers);
-            //ValidateScenarios(ref questions);
-
             if (answers.FindIndex((x) => x.Type == Scenario.ScenarioType.Text) == -1)
             {
                 answers.Add(new Scenario("no text answer", Scenario.ScenarioType.Text));
@@ -88,6 +86,10 @@ namespace Editor.MyControl
             else if (cbType.Text.Equals(typeAuctionString))
             {
                 type = Question.QuestionType.Auction;
+            }
+            else if (cbType.Text.Equals(typeNoRiskString))
+            {
+                type = Question.QuestionType.NoRisk;
             }
 
             if (type == Question.QuestionType.Normal)
@@ -112,24 +114,6 @@ namespace Editor.MyControl
 
         }
 
-        private void ValidateScenarios(ref List<Scenario> scenarios)
-        {
-            var sb = new StringBuilder();
-            foreach (var scenario in scenarios)
-            {
-                if (scenario.Type == Scenario.ScenarioType.Text)
-                {
-                    sb.AppendLine(scenario.Data);
-                }
-            }
-
-            int count = scenarios.RemoveAll((x) => x.Type == Scenario.ScenarioType.Text);
-
-            if (count != 0)
-            {
-                scenarios.Add(new Scenario(sb.ToString(), Scenario.ScenarioType.Text));
-            }
-        }
 
         public void Clear()
         {
@@ -166,6 +150,11 @@ namespace Editor.MyControl
                 {
                     cbType.Text = typeCatString;
                     pCat.Visibility = Visibility.Visible;
+                }
+                else if (question.IsNoRisk)
+                {
+                    cbType.Text = typeNoRiskString;
+                    pCat.Visibility = Visibility.Collapsed;
                 }
                 else
                 {

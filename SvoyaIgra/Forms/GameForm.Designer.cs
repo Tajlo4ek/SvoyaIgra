@@ -502,7 +502,7 @@
             this.Controls.Add(this.videoPlayer);
             this.Name = "GameForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "Jeopardy";
+            this.Text = "tajlo4ek\'s game";
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.GameForm_FormClosed);
             this.SizeChanged += new System.EventHandler(this.GameForm_SizeChanged);
             this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.GameForm_KeyDown);

@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Windows.Forms;
 using DataStore;
+using SvoyaIgra.Data;
 
 namespace SvoyaIgra.Utils.Controllers
 {
@@ -108,6 +110,7 @@ namespace SvoyaIgra.Utils.Controllers
             gameForm.OnCheckUserAns += OnUserAnswer;
             gameForm.OnSkipAction += NextUserMove;
             gameForm.OnCloseAction += OnClose;
+            gameForm.OnCloseAction += SvoyaIgra.Forms.MainMenu.ShowMain;
             gameForm.OnKickUser += Kick;
             gameForm.OnConfigUserMoney += StartConfigMoney;
             gameForm.OnAcceptUserMoney += AcceptConfigUser;
@@ -1106,10 +1109,7 @@ namespace SvoyaIgra.Utils.Controllers
                     case ClientServer.Message.MessageType.FinalAnswer:
                         {
                             var user = GetUser(messageToken);
-                            if (user != null)
-                            {
-                                user.SetFinalAns(message.GetData("data"));
-                            }
+                            user?.SetFinalAns(message.GetData("data"));
                         }
                         break;
                 }
@@ -1897,13 +1897,7 @@ namespace SvoyaIgra.Utils.Controllers
                 {
                     lock (users)
                     {
-                        var user = GetUser(userChoiseToken);
-
-                        if (user == null)
-                        {
-                            user = users[new Random().Next(users.Count)];
-                        }
-
+                        var user = GetUser(userChoiseToken) ?? users[new Random().Next(users.Count)];
                         var message = new ClientServer.Message()
                             .SetToken(ClientServer.Server.ServerToken)
                             .SetType(ClientServer.Message.MessageType.AuctionChoice)
@@ -1935,7 +1929,17 @@ namespace SvoyaIgra.Utils.Controllers
                     }
                     else
                     {
-                        AdminSay(nowTheme.Name + " " + nowQuestion.Cost);
+                        var adminText = nowTheme.Name + " " + nowQuestion.Cost;
+                        if (nowQuestion.IsNoRisk)
+                        {
+                            var user = GetUser(userChoiseToken);
+                            if (user != null)
+                            {
+                                adminText += "\nВопрос без риска.";
+                            }
+                        }
+
+                        AdminSay(adminText);
                     }
                 }
                 nextState = State.ShowQuestion;
@@ -2135,7 +2139,22 @@ namespace SvoyaIgra.Utils.Controllers
                 {
                     if (!isFinal)
                     {
-                        findUser.Money -= nowQuestion.IsNormal ? nowQuestion.Cost : nowQuestion.IsAuction ? findUser.Rate : nowQuestion.SpecialCost;
+                        switch (nowQuestion.questionType)
+                        {
+                            case Question.QuestionType.Normal:
+                                findUser.Money -= nowQuestion.Cost;
+                                break;
+                            case Question.QuestionType.Bagcat:
+                                findUser.Money -= nowQuestion.SpecialCost;
+                                break;
+                            case Question.QuestionType.Auction:
+                                findUser.Money -= findUser.Rate;
+                                break;
+                            case Question.QuestionType.NoRisk:
+                                findUser.Money -= 0;
+                                break;
+                        }
+
                         UpdateUser(findUser);
 
                         gameForm.Start();

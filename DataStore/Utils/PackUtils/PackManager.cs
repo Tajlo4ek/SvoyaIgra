@@ -53,13 +53,12 @@ namespace DataStore.Utils.PackUtils
                 }
                 else
                 {
-                    throw new BadFileException();
+                    throw new BadFileException("unknow extension: " + path);
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
-                throw new BadFileException();
+                throw new BadFileException(ex.Message);
             }
         }
 

@@ -47,24 +47,6 @@ namespace DataStore
             return sb.ToString();
         }
 
-        public Round(XmlElement item, Dictionary<string, string> rename, PackManager packManager)
-        {
-            Name = item.GetAttribute("name");
-
-            IsFinal = item.GetAttribute("type").Equals("final");
-
-            var themes = new List<Theme>();
-            foreach (var themesXml in Utils.MyXmlUtils.GetNodeWithName(item, "themes"))
-            {
-                foreach (var theme in Utils.MyXmlUtils.GetNodeWithName(themesXml, "theme"))
-                {
-                    themes.Add(new Theme(theme, rename, packManager));
-                }
-            }
-
-            this.themes = themes.ToArray();
-        }
-
         public Round(string name, List<Theme> themes, bool isFinal)
         {
             this.Name = name;
