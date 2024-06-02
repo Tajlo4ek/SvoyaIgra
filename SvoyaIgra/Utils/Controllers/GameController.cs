@@ -2118,6 +2118,7 @@ namespace SvoyaIgra.Utils.Controllers
                 if (isTrue)
                 {
                     AdminSay("верно!");
+                    isCanAnswer = false;
 
                     if (!isFinal)
                     {
@@ -2490,7 +2491,6 @@ namespace SvoyaIgra.Utils.Controllers
                     {
                         if (user.Rate <= 0)
                         {
-                            Console.WriteLine("3 pass " + user.Token);
                             user.SetRate(-1);
                         }
                     }
