@@ -73,10 +73,8 @@ namespace ClientServer
                     byte[] data = new byte[maxPackageSize];
 
                     int countRead = file.Read(data, 0, maxPackageSize);
-
                     socket.Send(Encoding.UTF8.GetBytes(Utils.AddChar(countRead.ToString(), Utils.numCount)));
-                    socket.Send(data);
-
+                    socket.Send(data, countRead, SocketFlags.None);
                     nowSended += countRead;
                 }
             }

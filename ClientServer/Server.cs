@@ -11,16 +11,11 @@ namespace ClientServer
     public class Server
     {
         private const int tokenSize = 20;
-        private const int maxActiveConnect = 5;
 
         public static string ServerToken = "server";
 
         private readonly Socket sListener;
         private readonly IPEndPoint ipEndPoint;
-
-        private readonly object locker;
-
-        private int activeConnectCount;
 
         private readonly StreamWriter outStream;
 
@@ -49,9 +44,6 @@ namespace ClientServer
             ipEndPoint = new IPEndPoint(ipAddr, Utils.port);
 
             sListener = new Socket(ipAddr.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
-
-            locker = new object();
-            activeConnectCount = 0;
 
             outStream = new StreamWriter("server.log");
 
@@ -187,64 +179,54 @@ namespace ClientServer
         {
             string token = "";
 
-            try
+            while (true)
             {
-                lock (locker)
+                try
                 {
-                    activeConnectCount++;
+
+                    var bytes = Utils.GetPackage(handler);
+                    string data = Encoding.UTF32.GetString(bytes);
+                    var messageFrom = Message.FromJson(data);
+
+
+                    var reply = CheckMessage(messageFrom, handler, out Message.MessageType type, out string sendFilePath);
+
+                    Utils.SendPackage(handler, reply);
+
+                    if (token.Length == 0)
+                    {
+                        token = messageFrom.Token;
+                    }
+
+                    if (type == Message.MessageType.SendFile)
+                    {
+                        Utils.SendFile(sendFilePath, handler);
+                        onGetMessage(messageFrom.SetType(Message.MessageType.FileSended));
+                    }
+
+                    if (type == Message.MessageType.FileSended)
+                    {
+                        Thread.Sleep(250);
+                    }
+
                 }
-
-                var bytes = Utils.GetPackage(handler);
-                string data = Encoding.UTF32.GetString(bytes);
-                var messageFrom = Message.FromJson(data);
-
-                var reply = CheckMessage(messageFrom, handler, out Message.MessageType type, out string sendFilePath);
-                Utils.SendPackage(handler, reply);
-
-                if (type == Message.MessageType.SendFile)
+                catch (Exception ex)
                 {
-                    Utils.SendFile(sendFilePath, handler);
-                    onGetMessage(messageFrom.SetType(Message.MessageType.FileSended));
+
+                    handler.Shutdown(SocketShutdown.Both);
+
+                    using (StreamWriter sw = new StreamWriter(logPath + @"/logs/server/" + DateTime.Now.ToString("dd_MM_yyyy_HH_mm_ss") + ".log", true))
+                    {
+                        sw.WriteLine(ex.ToString());
+                        sw.WriteLine(ex.StackTrace);
+                        sw.WriteLine("\n\n");
+                    }
+
+                    Log("error " + ex.ToString());
+                    onErrorAction(ex, token);
+
+                    break;
                 }
-
-                if (type == Message.MessageType.FileSended)
-                {
-                    Thread.Sleep(250);
-                }
-
-                handler.Shutdown(SocketShutdown.Both);
-
-                if (type != Message.MessageType.Ping)
-                {
-                    Log("send " + reply);
-                }
-
-                if (messageFrom.Type != Message.MessageType.Ping)
-                {
-                    Log("receive " + data);
-                }
-
-            }
-            catch (Exception ex)
-            {
-                using (StreamWriter sw = new StreamWriter(logPath + @"/logs/server/" + DateTime.Now.ToString("dd_MM_yyyy_HH_mm_ss") + ".log", true))
-                {
-                    sw.WriteLine(ex.ToString());
-                    sw.WriteLine(ex.StackTrace);
-                    sw.WriteLine("\n\n");
-                }
-
-                Log("error " + ex.ToString());
-                onErrorAction(ex, token);
-            }
-            finally
-            {
-                lock (locker)
-                {
-                    activeConnectCount--;
-                }
-
-                handler.Close();
             }
         }
 
@@ -256,12 +238,6 @@ namespace ClientServer
             while (true)
             {
                 Socket handler = sListener.Accept();
-
-                while (activeConnectCount >= maxActiveConnect)
-                {
-                    Thread.Sleep(50);
-                }
-
                 new Task(() => WorkWithConnect(handler)).Start();
             }
         }

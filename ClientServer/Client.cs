@@ -12,9 +12,6 @@ namespace ClientServer
     {
         static int id = 0;
 
-        private readonly IPAddress ipAddr;
-        private readonly IPEndPoint ipEndPoint;
-
         public string Token { get; private set; }
         private readonly string name;
 
@@ -40,11 +37,14 @@ namespace ClientServer
         public GetFilePathDelegate GetFilePath;
 
         private bool needStop = false;
+        private readonly Socket sender;
 
         public Client(string ip, string name, Action<Exception> onError)
         {
-            ipAddr = IPAddress.Parse(ip);
-            ipEndPoint = new IPEndPoint(ipAddr, Utils.port);
+            var ipAddr = IPAddress.Parse(ip);
+            var ipEndPoint = new IPEndPoint(ipAddr, Utils.port);
+            sender = new Socket(ipAddr.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+            sender.Connect(ipEndPoint);
 
             this.name = name;
             this.onErrorAction += onError;
@@ -99,7 +99,8 @@ namespace ClientServer
                     else
                     {
                         Thread.Sleep(5);
-                        SendMessage(GetMessageForServer(Token, out Message.MessageType type), type);
+                        var message = GetMessageForServer(Token, out Message.MessageType type);
+                        SendMessage(message, type);
                     }
 
                     if (needStop)
@@ -121,6 +122,9 @@ namespace ClientServer
                 onErrorAction(ex);
                 workThread.Abort();
             }
+
+            sender.Shutdown(SocketShutdown.Both);
+            sender.Close();
         }
 
         private void OnEnd(Message message, Socket socket)
@@ -161,26 +165,16 @@ namespace ClientServer
                     OnGetMessage(message);
                 }
 
-                socket.Shutdown(SocketShutdown.Both);
             }
             catch (Exception ex)
             {
                 Log(ex.ToString());
                 onErrorAction(ex);
             }
-            finally
-            {
-                socket.Close();
-            }
         }
 
         private void SendMessage(string messageData, Message.MessageType type)
         {
-
-            Socket sender = new Socket(ipAddr.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
-            sender.Connect(ipEndPoint);
-
-
             if (type == Message.MessageType.SendFile)
             {
                 var message = Message.FromJson(messageData);
@@ -213,18 +207,8 @@ namespace ClientServer
 
             var messageFrom = Message.FromJson(data);
 
+
             OnEnd(messageFrom, sender);
-
-            if (type != Message.MessageType.Ping)
-            {
-                Log("send " + messageData);
-            }
-
-            if (messageFrom.Type != Message.MessageType.Ping)
-            {
-                Log("recive " + data);
-            }
-
         }
 
         private void Log(string data)
