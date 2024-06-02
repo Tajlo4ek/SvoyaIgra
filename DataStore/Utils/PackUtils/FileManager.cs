@@ -37,7 +37,7 @@ namespace DataStore.Utils.PackUtils
                 {
                     if (FileLoader.TryLoad(path, newPathImg, out string imgPath))
                     {
-                        if (!System.Drawing.Imaging.ImageFormat.Gif.Equals(Image.FromFile(imgPath).RawFormat))
+                        //if (!System.Drawing.Imaging.ImageFormat.Gif.Equals(Image.FromFile(imgPath).RawFormat))
                         {
                             files.Add(name, imgPath);
                             isFind = true;
