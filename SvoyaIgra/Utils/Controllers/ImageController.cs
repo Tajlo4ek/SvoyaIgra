@@ -15,10 +15,11 @@ namespace SvoyaIgra.Utils.Controllers
         private readonly PictureBox pictureBox;
 
         private readonly Timer timer;
+        private DateTime lastUpdateTime;
 
         private Image imgForDraw;
 
-        private float procY;
+        private float nowPosYUp;
         private int maxY;
 
         private Action onEndCallback;
@@ -26,7 +27,7 @@ namespace SvoyaIgra.Utils.Controllers
         public delegate Image OnResizeDelegate();
         private OnResizeDelegate onResize;
 
-        private float speed = 0;
+        private float pixForMs = 0;
 
         private float time;
         private bool isInfinity;
@@ -62,11 +63,12 @@ namespace SvoyaIgra.Utils.Controllers
             imgForDraw = img;
             type = Type.Scroll;
 
-            procY = 0;
+            nowPosYUp = 0;
             maxY = pictureBox.Height + imgForDraw.Height;
             CalcSpeed();
 
             timer.Start();
+            lastUpdateTime = DateTime.Now;
 
             isInfinity = false;
         }
@@ -76,7 +78,7 @@ namespace SvoyaIgra.Utils.Controllers
             Stop();
 
             imgForDraw = img;
-            procY = 0;
+            nowPosYUp = 0;
             type = Type.Show;
 
             pictureBox.Refresh();
@@ -97,9 +99,13 @@ namespace SvoyaIgra.Utils.Controllers
         {
             if (type == Type.Scroll)
             {
+                var nowTime = DateTime.Now;
+                var deltams = (lastUpdateTime - nowTime).TotalMilliseconds;
+                lastUpdateTime = nowTime;
+
                 pictureBox.Refresh();
-                procY += speed;
-                if (procY >= 1)
+                nowPosYUp += pixForMs * timer.Interval;
+                if (nowPosYUp >= maxY)
                 {
                     timer.Stop();
                     type = Type.None;
@@ -137,11 +143,7 @@ namespace SvoyaIgra.Utils.Controllers
 
         private void CalcSpeed()
         {
-            float countScreen = (float)imgForDraw.Height / pictureBox.Height;
-            if (countScreen < 1)
-                countScreen = 1;
-
-            speed = 0.005f / countScreen;
+            pixForMs = pictureBox.Height / 1500.0f;
         }
 
         private void RePaint(object sender, PaintEventArgs e)
@@ -150,7 +152,7 @@ namespace SvoyaIgra.Utils.Controllers
             {
                 if (type == Type.Scroll)
                 {
-                    e.Graphics.DrawImage(imgForDraw, 0, pictureBox.Height - procY * maxY);
+                    e.Graphics.DrawImage(imgForDraw, 0, pictureBox.Height - nowPosYUp);
                 }
                 else if (type == Type.Show)
                 {
