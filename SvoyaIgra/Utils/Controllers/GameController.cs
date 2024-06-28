@@ -1469,6 +1469,7 @@ namespace SvoyaIgra.Utils.Controllers
                     break;
                 case State.ChoiseQuestion:
                     gameForm.ShowImageBackground(img, -1);
+                    gameForm.ShowAnsMenu(false);
                     break;
                 case State.ShowQuestion:
                     gameForm.SetCanAnswer(true);
@@ -1493,6 +1494,7 @@ namespace SvoyaIgra.Utils.Controllers
                     break;
                 case State.ShowAnswer:
                     gameForm.SetCanAnswer(false);
+                    gameForm.ShowAnsMenu(false);
                     if (isServer)
                     {
                         lock (users)

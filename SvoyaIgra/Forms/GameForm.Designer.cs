@@ -44,6 +44,7 @@
             this.tlpAns = new System.Windows.Forms.TableLayoutPanel();
             this.btnAnsFalse = new System.Windows.Forms.Button();
             this.btnAnsTrue = new System.Windows.Forms.Button();
+            this.btnAnsHalf = new System.Windows.Forms.Button();
             this.pbAnswer = new System.Windows.Forms.PictureBox();
             this.pbAdminSay = new System.Windows.Forms.PictureBox();
             this.pbAdminImage = new System.Windows.Forms.PictureBox();
@@ -53,7 +54,6 @@
             this.kickToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.configMoneyToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.setChoiseToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.btnShowAns = new System.Windows.Forms.Button();
             this.videoPlayer = new AxWMPLib.AxWindowsMediaPlayer();
             ((System.ComponentModel.ISupportInitialize)(this.imagePlayer)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pbRoundData)).BeginInit();
@@ -196,24 +196,24 @@
             // 
             this.tlpAns.ColumnCount = 1;
             this.tlpAns.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tlpAns.Controls.Add(this.btnAnsFalse, 0, 1);
+            this.tlpAns.Controls.Add(this.btnAnsFalse, 0, 2);
             this.tlpAns.Controls.Add(this.btnAnsTrue, 0, 0);
-            this.tlpAns.Location = new System.Drawing.Point(12, 250);
+            this.tlpAns.Controls.Add(this.btnAnsHalf, 0, 1);
+            this.tlpAns.Location = new System.Drawing.Point(9, 239);
             this.tlpAns.Name = "tlpAns";
-            this.tlpAns.RowCount = 2;
-            this.tlpAns.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.tlpAns.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.tlpAns.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
-            this.tlpAns.Size = new System.Drawing.Size(132, 72);
+            this.tlpAns.RowCount = 3;
+            this.tlpAns.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 33.33333F));
+            this.tlpAns.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 33.33334F));
+            this.tlpAns.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 33.33334F));
+            this.tlpAns.Size = new System.Drawing.Size(132, 86);
             this.tlpAns.TabIndex = 7;
-            this.tlpAns.Visible = false;
             // 
             // btnAnsFalse
             // 
             this.btnAnsFalse.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.btnAnsFalse.Location = new System.Drawing.Point(3, 39);
+            this.btnAnsFalse.Location = new System.Drawing.Point(3, 59);
             this.btnAnsFalse.Name = "btnAnsFalse";
-            this.btnAnsFalse.Size = new System.Drawing.Size(126, 30);
+            this.btnAnsFalse.Size = new System.Drawing.Size(126, 24);
             this.btnAnsFalse.TabIndex = 11;
             this.btnAnsFalse.TabStop = false;
             this.btnAnsFalse.Text = "Не верно";
@@ -225,21 +225,31 @@
             this.btnAnsTrue.Dock = System.Windows.Forms.DockStyle.Fill;
             this.btnAnsTrue.Location = new System.Drawing.Point(3, 3);
             this.btnAnsTrue.Name = "btnAnsTrue";
-            this.btnAnsTrue.Size = new System.Drawing.Size(126, 30);
+            this.btnAnsTrue.Size = new System.Drawing.Size(126, 22);
             this.btnAnsTrue.TabIndex = 0;
             this.btnAnsTrue.TabStop = false;
             this.btnAnsTrue.Text = "Верно";
             this.btnAnsTrue.UseVisualStyleBackColor = true;
             this.btnAnsTrue.Click += new System.EventHandler(this.BtnAnsTrue_Click);
             // 
+            // btnAnsHalf
+            // 
+            this.btnAnsHalf.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.btnAnsHalf.Location = new System.Drawing.Point(3, 31);
+            this.btnAnsHalf.Name = "btnAnsHalf";
+            this.btnAnsHalf.Size = new System.Drawing.Size(126, 22);
+            this.btnAnsHalf.TabIndex = 1;
+            this.btnAnsHalf.Text = "Половина";
+            this.btnAnsHalf.UseVisualStyleBackColor = true;
+            // 
             // pbAnswer
             // 
             this.pbAnswer.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(192)))));
             this.pbAnswer.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
             this.pbAnswer.InitialImage = global::SvoyaIgra.Properties.Resources.Background;
-            this.pbAnswer.Location = new System.Drawing.Point(12, 328);
+            this.pbAnswer.Location = new System.Drawing.Point(9, 331);
             this.pbAnswer.Name = "pbAnswer";
-            this.pbAnswer.Size = new System.Drawing.Size(132, 92);
+            this.pbAnswer.Size = new System.Drawing.Size(132, 118);
             this.pbAnswer.TabIndex = 12;
             this.pbAnswer.TabStop = false;
             this.pbAnswer.Visible = false;
@@ -248,7 +258,7 @@
             // 
             this.pbAdminSay.BackColor = System.Drawing.Color.Blue;
             this.pbAdminSay.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.pbAdminSay.Location = new System.Drawing.Point(12, 196);
+            this.pbAdminSay.Location = new System.Drawing.Point(9, 182);
             this.pbAdminSay.Name = "pbAdminSay";
             this.pbAdminSay.Size = new System.Drawing.Size(132, 51);
             this.pbAdminSay.TabIndex = 13;
@@ -258,7 +268,7 @@
             // 
             this.pbAdminImage.ErrorImage = global::SvoyaIgra.Properties.Resources.NoImg;
             this.pbAdminImage.InitialImage = null;
-            this.pbAdminImage.Location = new System.Drawing.Point(12, 25);
+            this.pbAdminImage.Location = new System.Drawing.Point(9, 43);
             this.pbAdminImage.Name = "pbAdminImage";
             this.pbAdminImage.Size = new System.Drawing.Size(132, 133);
             this.pbAdminImage.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
@@ -269,7 +279,7 @@
             // 
             this.pbAdminName.BackColor = System.Drawing.Color.Transparent;
             this.pbAdminName.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
-            this.pbAdminName.Location = new System.Drawing.Point(12, 164);
+            this.pbAdminName.Location = new System.Drawing.Point(9, 11);
             this.pbAdminName.Name = "pbAdminName";
             this.pbAdminName.Size = new System.Drawing.Size(132, 26);
             this.pbAdminName.TabIndex = 15;
@@ -316,16 +326,6 @@
             this.setChoiseToolStripMenuItem.Text = "Set choice";
             this.setChoiseToolStripMenuItem.Click += new System.EventHandler(this.SetChoiseToolStripMenuItem_Click);
             // 
-            // btnShowAns
-            // 
-            this.btnShowAns.Location = new System.Drawing.Point(12, 426);
-            this.btnShowAns.Name = "btnShowAns";
-            this.btnShowAns.Size = new System.Drawing.Size(129, 23);
-            this.btnShowAns.TabIndex = 2;
-            this.btnShowAns.Text = "Показать ответ";
-            this.btnShowAns.UseVisualStyleBackColor = true;
-            this.btnShowAns.Click += new System.EventHandler(this.BtnShowAns_Click);
-            // 
             // videoPlayer
             // 
             this.videoPlayer.Enabled = true;
@@ -342,7 +342,6 @@
             this.BackColor = System.Drawing.SystemColors.Control;
             this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
             this.ClientSize = new System.Drawing.Size(784, 461);
-            this.Controls.Add(this.btnShowAns);
             this.Controls.Add(this.pbAdminName);
             this.Controls.Add(this.pbAdminImage);
             this.Controls.Add(this.pbProgressBar);
@@ -402,6 +401,6 @@
         private System.Windows.Forms.ToolStripMenuItem kickToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem configMoneyToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem setChoiseToolStripMenuItem;
-        private System.Windows.Forms.Button btnShowAns;
+        private System.Windows.Forms.Button btnAnsHalf;
     }
 }

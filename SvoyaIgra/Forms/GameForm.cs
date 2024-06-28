@@ -161,9 +161,6 @@ namespace SvoyaIgra.Forms
             sizeController.AddControl(finalAnsControl);
             sizeController.AddControl(auctionControl, Utils.Controllers.SizeController.CorrectSizeType.Nothing, true);
             sizeController.AddControl(userEditControl, Utils.Controllers.SizeController.CorrectSizeType.Nothing, true);
-            sizeController.AddControl(btnShowAns);
-
-            btnShowAns.Visible = isServer;
 
             adminNameController = new Utils.Controllers.TextController(pbAdminName, Color.Black);
             answerTextController = new Utils.Controllers.TextController(pbAnswer, Utils.Controllers.GameController.MainColor);
@@ -187,7 +184,13 @@ namespace SvoyaIgra.Forms
             tlpAns.Visible = false;
             pbAnswer.Visible = false;
             btnSkip.Enabled = false;
+
+            if (isServer)
+            {
+                btnAns.Text = "Показать ответ";
+            }
             btnAns.Enabled = false;
+
 
             users = new List<UserInfo>();
             canChoise = false;
@@ -672,7 +675,8 @@ namespace SvoyaIgra.Forms
                     if (isServer)
                     {
                         SetAnswer(text);
-                        btnAns.Enabled = false;
+                        btnAns.Enabled = true;
+
                     }
 
                     mediaTimer.Start();
@@ -690,7 +694,7 @@ namespace SvoyaIgra.Forms
                     if (isServer)
                     {
                         answerTextController.SetText(text);
-                        btnAns.Enabled = false;
+                        btnAns.Enabled = true;
                     }
                 }
             }));
@@ -862,6 +866,10 @@ namespace SvoyaIgra.Forms
         private void BtnAns_MouseDown(object sender, MouseEventArgs e)
         {
             OnAnswerClick();
+            if (isServer)
+            {
+                pbAnswer.Visible = true;
+            }
         }
 
         private void KickToolStripMenuItem_Click(object sender, EventArgs e)
@@ -930,11 +938,6 @@ namespace SvoyaIgra.Forms
                     OnAnswerClick();
                 }
             }
-        }
-
-        private void BtnShowAns_Click(object sender, EventArgs e)
-        {
-            pbAnswer.Visible = true;
         }
     }
 }
