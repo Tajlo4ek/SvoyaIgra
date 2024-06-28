@@ -56,6 +56,7 @@ namespace SvoyaIgra.Forms
 
         private readonly bool isServer;
 
+        private DateTime lastTick;
 
         private class UserInfo
         {
@@ -119,7 +120,7 @@ namespace SvoyaIgra.Forms
 
         private readonly object locker;
 
-        private int time;
+        private int timeMs;
         private bool toEnd;
         private bool isWaitAnswer;
 
@@ -334,7 +335,14 @@ namespace SvoyaIgra.Forms
             }));
         }
 
-        public void PlayMedia(string path, int time, bool isQuestion = false)
+        private void StartMediaTimer(int milliseconds)
+        {
+            this.timeMs = milliseconds;
+            lastTick = DateTime.Now;
+            mediaTimer.Start();
+        }
+
+        public void PlayMedia(string path, int timeSec, bool isQuestion = false)
         {
             this.BeginInvoke(new Action(() =>
             {
@@ -364,11 +372,10 @@ namespace SvoyaIgra.Forms
 
                     isStartQuestion = true;
 
-                    if (time != -1)
+                    if (timeSec != -1)
                     {
-                        mediaTimer.Start();
                         toEnd = false;
-                        this.time = time * 1000;
+                        StartMediaTimer(timeSec * 1000);
                     }
                     else
                     {
@@ -379,7 +386,7 @@ namespace SvoyaIgra.Forms
 
         }
 
-        public void ShowImage(string path, int time, bool isQuestion = false)
+        public void ShowImage(string path, int timeSec, bool isQuestion = false)
         {
             this.BeginInvoke(new Action(() =>
             {
@@ -409,8 +416,7 @@ namespace SvoyaIgra.Forms
                     imagePlayer.Image = imagePlayer.InitialImage;
                     imagePlayer.LoadAsync(path);
 
-                    this.time = time * 1000;
-                    mediaTimer.Start();
+                    StartMediaTimer(timeSec * 1000);
                 }
             }));
         }
@@ -473,16 +479,20 @@ namespace SvoyaIgra.Forms
         {
             if (!toEnd)
             {
-                if (time < 0)
+                if (timeMs < 0)
                 {
                     FinishMedia();
                 }
                 else
                 {
-                    time -= mediaTimer.Interval;
+                    var nowTime = DateTime.Now;
+                    var delta = (int)(nowTime - lastTick).TotalMilliseconds;
+                    lastTick = nowTime;
+
+                    timeMs -= delta;
                     if (isWaitAnswer)
                     {
-                        progressBarAnswerController.SetValue(time);
+                        progressBarAnswerController.SetValue(timeMs);
                     }
                 }
             }
@@ -534,9 +544,9 @@ namespace SvoyaIgra.Forms
             {
                 lock (locker)
                 {
-                    if (toEnd || time >= 0)
+                    if (toEnd || timeMs >= 0)
                     {
-                        mediaTimer.Start();
+                        StartMediaTimer(timeMs);
                     }
 
                     if (videoPlayer.URL != "")
@@ -658,16 +668,15 @@ namespace SvoyaIgra.Forms
             }));
         }
 
-        public void WaitAnswer(int time, string text)
+        public void WaitAnswer(int timeSec, string text)
         {
             this.BeginInvoke(new Action(() =>
             {
                 lock (locker)
                 {
-                    this.time = time * 1000;
                     isWaitAnswer = true;
 
-                    progressBarAnswerController.SetMaxValue(this.time);
+                    progressBarAnswerController.SetMaxValue(this.timeMs);
                     progressBarAnswerController.SetValue(0);
                     pbProgressBar.Visible = true;
                     auctionControl.Visible = false;
@@ -676,10 +685,9 @@ namespace SvoyaIgra.Forms
                     {
                         SetAnswer(text);
                         btnAns.Enabled = true;
-
                     }
 
-                    mediaTimer.Start();
+                    StartMediaTimer(timeSec * 1000);
                 }
 
             }));

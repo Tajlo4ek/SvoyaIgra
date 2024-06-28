@@ -759,7 +759,7 @@ namespace SvoyaIgra.Utils.Controllers
                             {
                                 if (nowQuestion.IsNormal)
                                 {
-                                    int time = int.Parse(message.GetData("time"));
+                                    int time = int.Parse(message.GetData("timeSec"));
                                     gameForm.WaitAnswer(time, "");
                                     if (isFinal)
                                     {
@@ -1648,7 +1648,7 @@ namespace SvoyaIgra.Utils.Controllers
                     var message = new ClientServer.Message()
                         .SetToken(ClientServer.Server.ServerToken)
                         .SetType(ClientServer.Message.MessageType.StartCanAnswer)
-                        .Add("time", isFinal ? timeWaitAnswerFinal.ToString() : timeWaitAnswerNormal.ToString());
+                        .Add("timeSec", isFinal ? timeWaitAnswerFinal.ToString() : timeWaitAnswerNormal.ToString());
 
                     AddMessageForAll(message);
 
