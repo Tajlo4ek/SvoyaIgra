@@ -1,7 +1,9 @@
-﻿using System;
+﻿using SvoyaIgra.Controls;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
+using SvoyaIgra.Extensions;
 
 namespace SvoyaIgra.Forms
 {
@@ -9,6 +11,10 @@ namespace SvoyaIgra.Forms
     {
         private readonly Utils.Controllers.SizeController sizeController;
         private readonly Utils.Controllers.ImageController imageController;
+
+        private readonly FinalAnsControl finalAnsControl;
+        private readonly AuctionControl auctionControl;
+        private readonly UserEditControl userEditControl;
 
         public Action<int, int> OnMouseMoveAction;
         public Action<int, int> OnMouseClickAction;
@@ -23,11 +29,25 @@ namespace SvoyaIgra.Forms
         public Action<bool> OnCheckUserAns;
         public Action<string> OnKickUser;
         public Action<string> OnConfigUserMoney;
-        public Action<string, int> OnAcceptUserMoney;
         public Action OnCloseAction;
         public Action<string> SetChoiceUser;
-        public Action<int> AuctionMove;
-        public Action<string> FinalAnsClick;
+        public Action<int> AuctionMove
+        {
+            get { return auctionControl.AuctionMove; }
+            set { auctionControl.AuctionMove = value; }
+        }
+
+        public Action<string> FinalAnsClick
+        {
+            get { return finalAnsControl.FinalAnsClick; }
+            set { finalAnsControl.FinalAnsClick = value; }
+        }
+
+        public Action<string, int> OnAcceptUserMoney
+        {
+            get { return userEditControl.OnAcceptUserMoney; }
+            set { userEditControl.OnAcceptUserMoney = value; }
+        }
 
         private bool canChoise;
 
@@ -35,6 +55,7 @@ namespace SvoyaIgra.Forms
         private bool isGameStarted;
 
         private readonly bool isServer;
+
 
         private class UserInfo
         {
@@ -104,6 +125,8 @@ namespace SvoyaIgra.Forms
 
         private bool isStartQuestion;
 
+
+
         public GameForm(int sizeX, int sizeY, Action onEnd, Utils.Controllers.ImageController.OnResizeDelegate onResize, bool isServer)
         {
             this.Size = new Size(sizeX, sizeY);
@@ -113,6 +136,13 @@ namespace SvoyaIgra.Forms
             InitializeComponent();
 
             sizeController = new Utils.Controllers.SizeController(this.Size);
+
+            finalAnsControl = new FinalAnsControl();
+            userEditControl = new UserEditControl();
+            auctionControl = new AuctionControl(Utils.Controllers.GameController.AuctionStep);
+
+            CreateControls();
+
 
             sizeController.AddControl(imagePlayer);
             sizeController.AddControl(videoPlayer);
@@ -128,9 +158,12 @@ namespace SvoyaIgra.Forms
             sizeController.AddControl(pbAdminSay);
             sizeController.AddControl(pbAdminName);
 
-            sizeController.AddControl(gbFinalAns);
-            sizeController.AddControl(rtbAns);
-            sizeController.AddControl(btnAnsFinal);
+            sizeController.AddControl(finalAnsControl);
+            sizeController.AddControl(auctionControl, Utils.Controllers.SizeController.CorrectSizeType.Nothing, true);
+            sizeController.AddControl(userEditControl, Utils.Controllers.SizeController.CorrectSizeType.Nothing, true);
+            sizeController.AddControl(btnShowAns);
+
+            btnShowAns.Visible = isServer;
 
             adminNameController = new Utils.Controllers.TextController(pbAdminName, Color.Black);
             answerTextController = new Utils.Controllers.TextController(pbAnswer, Utils.Controllers.GameController.MainColor);
@@ -164,11 +197,28 @@ namespace SvoyaIgra.Forms
 
             mediaTimer.Interval = 50;
 
-            trBarAuctionRate.SmallChange = Utils.Controllers.GameController.AuctionStep;
-            trBarAuctionRate.LargeChange = Utils.Controllers.GameController.AuctionStep;
-            trBarAuctionRate.TickFrequency = Utils.Controllers.GameController.AuctionStep;
-
             locker = new object();
+        }
+
+        private void CreateControls()
+        {
+            finalAnsControl.Location = tlpPlayers.Location;
+            finalAnsControl.Size = tlpPlayers.Size;
+            finalAnsControl.Visible = false;
+            this.Controls.Add(finalAnsControl);
+            this.Controls.SetOnTop(tlpPlayers, finalAnsControl);
+
+            this.Controls.Add(auctionControl);
+            this.Controls.SetOnTop(pbRoundData, auctionControl);
+            auctionControl.Top = (this.Height - auctionControl.Height) / 2;
+            auctionControl.Left = (this.Width - auctionControl.Width) / 2;
+            auctionControl.Visible = false;
+
+            this.Controls.Add(userEditControl);
+            this.Controls.SetOnTop(pbRoundData, userEditControl);
+            userEditControl.Top = pbRoundData.Bottom - 10 - userEditControl.Height;
+            userEditControl.Left = (this.Width - userEditControl.Width) / 2;
+            userEditControl.Visible = false;
         }
 
         public void SetAdminData(string name)
@@ -449,9 +499,9 @@ namespace SvoyaIgra.Forms
 
                     isWaitAnswer = false;
                     pbProgressBar.Visible = false;
-                    gbFinalAns.Visible = false;
+                    finalAnsControl.Visible = false;
 
-                    gbAuction.Visible = false;
+                    auctionControl.Visible = false;
 
                     if (callBack)
                     {
@@ -560,7 +610,7 @@ namespace SvoyaIgra.Forms
         {
             var userPb = (PictureBox)sender;
             var userToken = userPb.Name;
-            gbConfigUser.Visible = false;
+            userEditControl.Visible = false;
 
             if (e.Button == MouseButtons.Right)
             {
@@ -617,7 +667,7 @@ namespace SvoyaIgra.Forms
                     progressBarAnswerController.SetMaxValue(this.time);
                     progressBarAnswerController.SetValue(0);
                     pbProgressBar.Visible = true;
-                    gbAuction.Visible = false;
+                    auctionControl.Visible = false;
 
                     if (isServer)
                     {
@@ -805,8 +855,8 @@ namespace SvoyaIgra.Forms
 
             tlpAns.Visible = false;
             pbAnswer.Visible = false;
-            gbAuction.Visible = false;
-            gbConfigUser.Visible = false;
+            auctionControl.Visible = false;
+            userEditControl.Visible = false;
         }
 
         private void BtnAns_MouseDown(object sender, MouseEventArgs e)
@@ -829,12 +879,8 @@ namespace SvoyaIgra.Forms
             {
                 lock (locker)
                 {
-                    gbConfigUser.Text = name;
-                    tbConfigMoney.Text = nowMoney.ToString();
-                    gbConfigUser.Visible = true;
-
-                    gbConfigUser.Top = (this.Height - gbConfigUser.Height) / 2;
-                    gbConfigUser.Left = (this.Width - gbConfigUser.Width) / 2;
+                    userEditControl.ShowEdit(selectedUserToken, name, nowMoney);
+                    userEditControl.Visible = true;
                 }
             }));
         }
@@ -842,22 +888,6 @@ namespace SvoyaIgra.Forms
         private void ConfigMoneyToolStripMenuItem_Click(object sender, EventArgs e)
         {
             OnConfigUserMoney(selectedUserToken);
-        }
-
-        private void BtnConfigSet_Click(object sender, EventArgs e)
-        {
-            if (int.TryParse(tbConfigMoney.Text, out int money))
-            {
-                OnAcceptUserMoney(selectedUserToken, money);
-            }
-            gbConfigUser.Visible = false;
-            selectedUserToken = "";
-        }
-
-        private void BtnConfigCancel_Click(object sender, EventArgs e)
-        {
-            gbConfigUser.Visible = false;
-            selectedUserToken = "";
         }
 
         private void SetChoiseToolStripMenuItem_Click(object sender, EventArgs e)
@@ -872,77 +902,10 @@ namespace SvoyaIgra.Forms
             {
                 lock (locker)
                 {
-                    trBarAuctionRate.Minimum = (int)Math.Round((float)minValue / Utils.Controllers.GameController.AuctionStep);
-                    tbAuctionRate.Text = (trBarAuctionRate.Minimum * Utils.Controllers.GameController.AuctionStep).ToString();
-
-                    if (canAllIn && !canSet)
-                    {
-                        trBarAuctionRate.Minimum = maxValue;
-                        trBarAuctionRate.Maximum = maxValue;
-                        tbAuctionRate.Text = trBarAuctionRate.Minimum.ToString();
-                    }
-                    else
-                    {
-                        if (minValue < maxValue)
-                        {
-                            trBarAuctionRate.Maximum = maxValue / Utils.Controllers.GameController.AuctionStep;
-                        }
-                        else if (minValue == maxValue)
-                        {
-                            trBarAuctionRate.Minimum = minValue;
-                            trBarAuctionRate.Maximum = minValue;
-                            tbAuctionRate.Text = trBarAuctionRate.Minimum.ToString();
-                        }
-                        else
-                        {
-                            trBarAuctionRate.Maximum = trBarAuctionRate.Minimum;
-                        }
-                    }
-
-
-                    trBarAuctionRate.Value = trBarAuctionRate.Minimum;
-
-                    btnAuctionAllIn.Enabled = canAllIn;
-                    btnAuctionPass.Enabled = canPass;
-                    btnAuctionSet.Enabled = canSet;
-                    trBarAuctionRate.Enabled = canSet;
-
-
-                    gbAuction.Visible = true;
-                    gbAuction.Top = (this.Height - gbAuction.Height) / 2;
-                    gbAuction.Left = (this.Width - gbAuction.Width) / 2;
-
+                    auctionControl.ShowAuction(minValue, maxValue, canPass, canAllIn, canSet);
+                    auctionControl.Visible = true;
                 }
             }));
-        }
-
-        private void TrBarRate_ValueChanged(object sender, EventArgs e)
-        {
-            tbAuctionRate.Text = (trBarAuctionRate.Value * Utils.Controllers.GameController.AuctionStep).ToString();
-        }
-
-        private void BtnAuctionPass_Click(object sender, EventArgs e)
-        {
-            gbAuction.Visible = false;
-            AuctionMove(0);
-        }
-
-        private void BtnAuctionAllIn_Click(object sender, EventArgs e)
-        {
-            gbAuction.Visible = false;
-            AuctionMove(-1);
-        }
-
-        private void BtnAuctionSet_Click(object sender, EventArgs e)
-        {
-            gbAuction.Visible = false;
-            AuctionMove(trBarAuctionRate.Value * Utils.Controllers.GameController.AuctionStep);
-        }
-
-        private void BtnAnsFinal_Click(object sender, EventArgs e)
-        {
-            gbFinalAns.Visible = false;
-            FinalAnsClick(rtbAns.Text);
         }
 
         public void ShowFinalAnswer()
@@ -952,7 +915,7 @@ namespace SvoyaIgra.Forms
                 lock (locker)
                 {
                     btnAns.Enabled = false;
-                    gbFinalAns.Visible = true;
+                    finalAnsControl.Visible = true;
                 }
             }));
         }
@@ -969,6 +932,10 @@ namespace SvoyaIgra.Forms
             }
         }
 
+        private void BtnShowAns_Click(object sender, EventArgs e)
+        {
+            pbAnswer.Visible = true;
+        }
     }
 }
 

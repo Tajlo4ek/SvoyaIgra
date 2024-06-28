@@ -10,43 +10,41 @@ namespace SvoyaIgra.Utils.Controllers
 {
     public class SizeController
     {
-        private readonly int baseWidth;
-
-        private readonly int baseHeight;
+        private readonly Size baseSize;
 
         private readonly List<Component> controls;
 
-        public enum CorrectType
+        public enum CorrectSizeType
         {
             All,
             WidthOnly,
             HeightOnly,
+            Nothing,
         }
 
         public SizeController(Size size)
         {
-            baseWidth = size.Width;
-            baseHeight = size.Height;
+            baseSize = size;
 
             controls = new List<Component>();
         }
 
-        public void AddControl(Control control, CorrectType correctType = CorrectType.All, bool correctPosition = true)
+        public void AddControl(Control control, CorrectSizeType correctType = CorrectSizeType.All, bool correctPosition = true)
         {
-            bool correctWidth = correctType != CorrectType.HeightOnly;
-            bool correctHeight = correctType != CorrectType.WidthOnly;
+            bool correctWidth = (correctType == CorrectSizeType.WidthOnly || correctType == CorrectSizeType.All);
+            bool correctHeight = (correctType == CorrectSizeType.HeightOnly || correctType == CorrectSizeType.All);
 
-            controls.Add(new Component(control, correctWidth, correctHeight, correctPosition));
+            controls.Add(new Component(control, correctWidth, correctHeight, correctPosition, baseSize));
         }
 
         public void ResizeAll(Size size)
         {
-            var dx = (float)size.Width / baseWidth;
-            var dy = (float)size.Height / baseHeight;
+            var dx = (float)size.Width / baseSize.Width;
+            var dy = (float)size.Height / baseSize.Height;
 
             foreach (var component in controls)
             {
-                component.Resize(dx, dy);
+                component.Resize(size, dx, dy);
             }
         }
 

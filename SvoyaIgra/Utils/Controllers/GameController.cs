@@ -9,7 +9,7 @@ namespace SvoyaIgra.Utils.Controllers
 {
     public class GameController
     {
-        public static int AuctionStep = 100;
+        public const int AuctionStep = 100;
 
 
         public static readonly Color MainColor = Color.FromArgb(255, 255, 70);

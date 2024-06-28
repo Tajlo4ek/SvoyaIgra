@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SvoyaIgra.Controls;
+using System;
 using System.Windows.Forms;
 
 namespace SvoyaIgra.Utils
@@ -11,13 +12,13 @@ namespace SvoyaIgra.Utils
 
         private readonly int baseHeight;
 
-        private readonly System.Drawing.Point basePositon;
+        private readonly System.Drawing.PointF basePositonCenter;
 
         private readonly bool correctWidth;
         private readonly bool correctHeight;
         private readonly bool correctPosition;
 
-        public Component(Control control, bool correctWidth, bool correctHeight, bool correctPosition)
+        public Component(Control control, bool correctWidth, bool correctHeight, bool correctPosition, System.Drawing.Size baseParentSize)
         {
             this.control = control;
             baseWidth = control.Size.Width;
@@ -27,10 +28,12 @@ namespace SvoyaIgra.Utils
             this.correctHeight = correctHeight;
             this.correctPosition = correctPosition;
 
-            basePositon = new System.Drawing.Point(control.Left, control.Top);
+            basePositonCenter = new System.Drawing.PointF(
+               (control.Left + control.Right) / 2.0f / baseParentSize.Width,
+               (control.Top + control.Bottom) / 2.0f / baseParentSize.Height);
         }
 
-        public void Resize(float dw, float dh)
+        public void Resize(System.Drawing.Size newParentSize, float dw, float dh)
         {
             int newWidth = correctWidth ? (int)Math.Round(dw * baseWidth) : control.Size.Width;
             int newHeight = correctHeight ? (int)Math.Round(dh * baseHeight) : control.Size.Height;
@@ -39,8 +42,8 @@ namespace SvoyaIgra.Utils
 
             if (correctPosition)
             {
-                control.Left = (int)(basePositon.X * dw);
-                control.Top = (int)(basePositon.Y * dh);
+                control.Left = (int)(newParentSize.Width * basePositonCenter.X - newWidth / 2);
+                control.Top = (int)(newParentSize.Height * basePositonCenter.Y - newHeight / 2);
             }
         }
 

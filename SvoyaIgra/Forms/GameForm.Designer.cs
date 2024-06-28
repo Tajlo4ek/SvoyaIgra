@@ -31,7 +31,6 @@
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(GameForm));
             this.mediaTimer = new System.Windows.Forms.Timer(this.components);
-            this.videoPlayer = new AxWMPLib.AxWindowsMediaPlayer();
             this.imagePlayer = new System.Windows.Forms.PictureBox();
             this.pbRoundData = new System.Windows.Forms.PictureBox();
             this.moveTimer = new System.Windows.Forms.Timer(this.components);
@@ -54,20 +53,8 @@
             this.kickToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.configMoneyToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.setChoiseToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.gbConfigUser = new System.Windows.Forms.GroupBox();
-            this.tbConfigMoney = new System.Windows.Forms.TextBox();
-            this.btnConfigCancel = new System.Windows.Forms.Button();
-            this.btnConfigSet = new System.Windows.Forms.Button();
-            this.gbAuction = new System.Windows.Forms.GroupBox();
-            this.tbAuctionRate = new System.Windows.Forms.TextBox();
-            this.btnAuctionSet = new System.Windows.Forms.Button();
-            this.btnAuctionAllIn = new System.Windows.Forms.Button();
-            this.btnAuctionPass = new System.Windows.Forms.Button();
-            this.trBarAuctionRate = new System.Windows.Forms.TrackBar();
-            this.gbFinalAns = new System.Windows.Forms.GroupBox();
-            this.btnAnsFinal = new System.Windows.Forms.Button();
-            this.rtbAns = new System.Windows.Forms.RichTextBox();
-            ((System.ComponentModel.ISupportInitialize)(this.videoPlayer)).BeginInit();
+            this.btnShowAns = new System.Windows.Forms.Button();
+            this.videoPlayer = new AxWMPLib.AxWindowsMediaPlayer();
             ((System.ComponentModel.ISupportInitialize)(this.imagePlayer)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pbRoundData)).BeginInit();
             this.adminPanel.SuspendLayout();
@@ -78,24 +65,12 @@
             ((System.ComponentModel.ISupportInitialize)(this.pbAdminName)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pbProgressBar)).BeginInit();
             this.userConfigMenu.SuspendLayout();
-            this.gbConfigUser.SuspendLayout();
-            this.gbAuction.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.trBarAuctionRate)).BeginInit();
-            this.gbFinalAns.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.videoPlayer)).BeginInit();
             this.SuspendLayout();
             // 
             // mediaTimer
             // 
             this.mediaTimer.Tick += new System.EventHandler(this.MediaTimer_Tick);
-            // 
-            // videoPlayer
-            // 
-            this.videoPlayer.Enabled = true;
-            this.videoPlayer.Location = new System.Drawing.Point(150, 25);
-            this.videoPlayer.Name = "videoPlayer";
-            this.videoPlayer.OcxState = ((System.Windows.Forms.AxHost.State)(resources.GetObject("videoPlayer.OcxState")));
-            this.videoPlayer.Size = new System.Drawing.Size(500, 300);
-            this.videoPlayer.TabIndex = 2;
             // 
             // imagePlayer
             // 
@@ -264,7 +239,7 @@
             this.pbAnswer.InitialImage = global::SvoyaIgra.Properties.Resources.Background;
             this.pbAnswer.Location = new System.Drawing.Point(12, 328);
             this.pbAnswer.Name = "pbAnswer";
-            this.pbAnswer.Size = new System.Drawing.Size(132, 121);
+            this.pbAnswer.Size = new System.Drawing.Size(132, 92);
             this.pbAnswer.TabIndex = 12;
             this.pbAnswer.TabStop = false;
             this.pbAnswer.Visible = false;
@@ -341,142 +316,24 @@
             this.setChoiseToolStripMenuItem.Text = "Set choice";
             this.setChoiseToolStripMenuItem.Click += new System.EventHandler(this.SetChoiseToolStripMenuItem_Click);
             // 
-            // gbConfigUser
+            // btnShowAns
             // 
-            this.gbConfigUser.Controls.Add(this.tbConfigMoney);
-            this.gbConfigUser.Controls.Add(this.btnConfigCancel);
-            this.gbConfigUser.Controls.Add(this.btnConfigSet);
-            this.gbConfigUser.Location = new System.Drawing.Point(306, 38);
-            this.gbConfigUser.Name = "gbConfigUser";
-            this.gbConfigUser.Size = new System.Drawing.Size(200, 100);
-            this.gbConfigUser.TabIndex = 18;
-            this.gbConfigUser.TabStop = false;
-            this.gbConfigUser.Text = "gbConfigUser";
-            this.gbConfigUser.Visible = false;
+            this.btnShowAns.Location = new System.Drawing.Point(12, 426);
+            this.btnShowAns.Name = "btnShowAns";
+            this.btnShowAns.Size = new System.Drawing.Size(129, 23);
+            this.btnShowAns.TabIndex = 2;
+            this.btnShowAns.Text = "Показать ответ";
+            this.btnShowAns.UseVisualStyleBackColor = true;
+            this.btnShowAns.Click += new System.EventHandler(this.BtnShowAns_Click);
             // 
-            // tbConfigMoney
+            // videoPlayer
             // 
-            this.tbConfigMoney.Location = new System.Drawing.Point(6, 35);
-            this.tbConfigMoney.Name = "tbConfigMoney";
-            this.tbConfigMoney.Size = new System.Drawing.Size(188, 20);
-            this.tbConfigMoney.TabIndex = 2;
-            // 
-            // btnConfigCancel
-            // 
-            this.btnConfigCancel.Location = new System.Drawing.Point(119, 71);
-            this.btnConfigCancel.Name = "btnConfigCancel";
-            this.btnConfigCancel.Size = new System.Drawing.Size(75, 23);
-            this.btnConfigCancel.TabIndex = 1;
-            this.btnConfigCancel.Text = "Cancel";
-            this.btnConfigCancel.UseVisualStyleBackColor = true;
-            this.btnConfigCancel.Click += new System.EventHandler(this.BtnConfigCancel_Click);
-            // 
-            // btnConfigSet
-            // 
-            this.btnConfigSet.Location = new System.Drawing.Point(6, 71);
-            this.btnConfigSet.Name = "btnConfigSet";
-            this.btnConfigSet.Size = new System.Drawing.Size(75, 23);
-            this.btnConfigSet.TabIndex = 0;
-            this.btnConfigSet.Text = "Set";
-            this.btnConfigSet.UseVisualStyleBackColor = true;
-            this.btnConfigSet.Click += new System.EventHandler(this.BtnConfigSet_Click);
-            // 
-            // gbAuction
-            // 
-            this.gbAuction.Controls.Add(this.tbAuctionRate);
-            this.gbAuction.Controls.Add(this.btnAuctionSet);
-            this.gbAuction.Controls.Add(this.btnAuctionAllIn);
-            this.gbAuction.Controls.Add(this.btnAuctionPass);
-            this.gbAuction.Controls.Add(this.trBarAuctionRate);
-            this.gbAuction.Location = new System.Drawing.Point(306, 144);
-            this.gbAuction.Name = "gbAuction";
-            this.gbAuction.Size = new System.Drawing.Size(200, 100);
-            this.gbAuction.TabIndex = 19;
-            this.gbAuction.TabStop = false;
-            this.gbAuction.Text = "Аукцион";
-            this.gbAuction.Visible = false;
-            // 
-            // tbAuctionRate
-            // 
-            this.tbAuctionRate.Enabled = false;
-            this.tbAuctionRate.Location = new System.Drawing.Point(6, 45);
-            this.tbAuctionRate.Name = "tbAuctionRate";
-            this.tbAuctionRate.Size = new System.Drawing.Size(187, 20);
-            this.tbAuctionRate.TabIndex = 4;
-            this.tbAuctionRate.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            // 
-            // btnAuctionSet
-            // 
-            this.btnAuctionSet.Location = new System.Drawing.Point(135, 71);
-            this.btnAuctionSet.Name = "btnAuctionSet";
-            this.btnAuctionSet.Size = new System.Drawing.Size(58, 23);
-            this.btnAuctionSet.TabIndex = 3;
-            this.btnAuctionSet.Text = "ставка";
-            this.btnAuctionSet.UseVisualStyleBackColor = true;
-            this.btnAuctionSet.Click += new System.EventHandler(this.BtnAuctionSet_Click);
-            // 
-            // btnAuctionAllIn
-            // 
-            this.btnAuctionAllIn.Location = new System.Drawing.Point(71, 71);
-            this.btnAuctionAllIn.Name = "btnAuctionAllIn";
-            this.btnAuctionAllIn.Size = new System.Drawing.Size(58, 23);
-            this.btnAuctionAllIn.TabIndex = 2;
-            this.btnAuctionAllIn.Text = "ва-банк";
-            this.btnAuctionAllIn.UseVisualStyleBackColor = true;
-            this.btnAuctionAllIn.Click += new System.EventHandler(this.BtnAuctionAllIn_Click);
-            // 
-            // btnAuctionPass
-            // 
-            this.btnAuctionPass.Location = new System.Drawing.Point(6, 71);
-            this.btnAuctionPass.Name = "btnAuctionPass";
-            this.btnAuctionPass.Size = new System.Drawing.Size(59, 23);
-            this.btnAuctionPass.TabIndex = 1;
-            this.btnAuctionPass.Text = "пас";
-            this.btnAuctionPass.UseVisualStyleBackColor = true;
-            this.btnAuctionPass.Click += new System.EventHandler(this.BtnAuctionPass_Click);
-            // 
-            // trBarAuctionRate
-            // 
-            this.trBarAuctionRate.AutoSize = false;
-            this.trBarAuctionRate.LargeChange = 50;
-            this.trBarAuctionRate.Location = new System.Drawing.Point(6, 20);
-            this.trBarAuctionRate.Maximum = 50;
-            this.trBarAuctionRate.Name = "trBarAuctionRate";
-            this.trBarAuctionRate.Size = new System.Drawing.Size(188, 26);
-            this.trBarAuctionRate.SmallChange = 50;
-            this.trBarAuctionRate.TabIndex = 0;
-            this.trBarAuctionRate.TickFrequency = 100;
-            this.trBarAuctionRate.ValueChanged += new System.EventHandler(this.TrBarRate_ValueChanged);
-            // 
-            // gbFinalAns
-            // 
-            this.gbFinalAns.Controls.Add(this.btnAnsFinal);
-            this.gbFinalAns.Controls.Add(this.rtbAns);
-            this.gbFinalAns.Location = new System.Drawing.Point(150, 328);
-            this.gbFinalAns.Name = "gbFinalAns";
-            this.gbFinalAns.Size = new System.Drawing.Size(500, 121);
-            this.gbFinalAns.TabIndex = 20;
-            this.gbFinalAns.TabStop = false;
-            this.gbFinalAns.Text = "Введите ответ";
-            this.gbFinalAns.Visible = false;
-            // 
-            // btnAnsFinal
-            // 
-            this.btnAnsFinal.Location = new System.Drawing.Point(419, 19);
-            this.btnAnsFinal.Name = "btnAnsFinal";
-            this.btnAnsFinal.Size = new System.Drawing.Size(75, 96);
-            this.btnAnsFinal.TabIndex = 1;
-            this.btnAnsFinal.Text = "ответить";
-            this.btnAnsFinal.UseVisualStyleBackColor = true;
-            this.btnAnsFinal.Click += new System.EventHandler(this.BtnAnsFinal_Click);
-            // 
-            // rtbAns
-            // 
-            this.rtbAns.Location = new System.Drawing.Point(6, 19);
-            this.rtbAns.Name = "rtbAns";
-            this.rtbAns.Size = new System.Drawing.Size(410, 96);
-            this.rtbAns.TabIndex = 0;
-            this.rtbAns.Text = "";
+            this.videoPlayer.Enabled = true;
+            this.videoPlayer.Location = new System.Drawing.Point(150, 25);
+            this.videoPlayer.Name = "videoPlayer";
+            this.videoPlayer.OcxState = ((System.Windows.Forms.AxHost.State)(resources.GetObject("videoPlayer.OcxState")));
+            this.videoPlayer.Size = new System.Drawing.Size(500, 300);
+            this.videoPlayer.TabIndex = 2;
             // 
             // GameForm
             // 
@@ -485,11 +342,9 @@
             this.BackColor = System.Drawing.SystemColors.Control;
             this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
             this.ClientSize = new System.Drawing.Size(784, 461);
-            this.Controls.Add(this.gbFinalAns);
-            this.Controls.Add(this.gbAuction);
+            this.Controls.Add(this.btnShowAns);
             this.Controls.Add(this.pbAdminName);
             this.Controls.Add(this.pbAdminImage);
-            this.Controls.Add(this.gbConfigUser);
             this.Controls.Add(this.pbProgressBar);
             this.Controls.Add(this.pbAdminSay);
             this.Controls.Add(this.pbAnswer);
@@ -500,13 +355,13 @@
             this.Controls.Add(this.pbRoundData);
             this.Controls.Add(this.imagePlayer);
             this.Controls.Add(this.videoPlayer);
+            this.MinimumSize = new System.Drawing.Size(800, 500);
             this.Name = "GameForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "tajlo4ek\'s game";
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.GameForm_FormClosed);
             this.SizeChanged += new System.EventHandler(this.GameForm_SizeChanged);
             this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.GameForm_KeyDown);
-            ((System.ComponentModel.ISupportInitialize)(this.videoPlayer)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.imagePlayer)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pbRoundData)).EndInit();
             this.adminPanel.ResumeLayout(false);
@@ -517,12 +372,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.pbAdminName)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pbProgressBar)).EndInit();
             this.userConfigMenu.ResumeLayout(false);
-            this.gbConfigUser.ResumeLayout(false);
-            this.gbConfigUser.PerformLayout();
-            this.gbAuction.ResumeLayout(false);
-            this.gbAuction.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.trBarAuctionRate)).EndInit();
-            this.gbFinalAns.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.videoPlayer)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -550,20 +400,8 @@
         private System.Windows.Forms.PictureBox pbProgressBar;
         private System.Windows.Forms.ContextMenuStrip userConfigMenu;
         private System.Windows.Forms.ToolStripMenuItem kickToolStripMenuItem;
-        private System.Windows.Forms.GroupBox gbConfigUser;
-        private System.Windows.Forms.TextBox tbConfigMoney;
-        private System.Windows.Forms.Button btnConfigCancel;
-        private System.Windows.Forms.Button btnConfigSet;
         private System.Windows.Forms.ToolStripMenuItem configMoneyToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem setChoiseToolStripMenuItem;
-        private System.Windows.Forms.GroupBox gbAuction;
-        private System.Windows.Forms.TrackBar trBarAuctionRate;
-        private System.Windows.Forms.TextBox tbAuctionRate;
-        private System.Windows.Forms.Button btnAuctionSet;
-        private System.Windows.Forms.Button btnAuctionAllIn;
-        private System.Windows.Forms.Button btnAuctionPass;
-        private System.Windows.Forms.GroupBox gbFinalAns;
-        private System.Windows.Forms.Button btnAnsFinal;
-        private System.Windows.Forms.RichTextBox rtbAns;
+        private System.Windows.Forms.Button btnShowAns;
     }
 }
