@@ -41,6 +41,13 @@ namespace SvoyaIgra.Utils.Controllers
 
         private bool isFinal;
 
+        public enum AnswerType
+        {
+            Full,
+            Half,
+            Fail
+        }
+
         private enum State
         {
             WaitPlayer,
@@ -2104,7 +2111,7 @@ namespace SvoyaIgra.Utils.Controllers
             }
         }
 
-        private void OnUserAnswer(bool isTrue)
+        private void OnUserAnswer(AnswerType type)
         {
             lock (users)
             {
@@ -2117,7 +2124,7 @@ namespace SvoyaIgra.Utils.Controllers
                 var findUser = GetUser(userAnsToken);
 
 
-                if (isTrue)
+                if (type != AnswerType.Fail)
                 {
                     AdminSay("верно!");
                     isCanAnswer = false;
@@ -2125,7 +2132,8 @@ namespace SvoyaIgra.Utils.Controllers
                     if (!isFinal)
                     {
                         nowAnswerScenario = 0;
-                        findUser.Money += nowQuestion.IsNormal ? nowQuestion.Cost : nowQuestion.IsAuction ? findUser.Rate : nowQuestion.SpecialCost;
+                        var count = nowQuestion.IsNormal ? nowQuestion.Cost : nowQuestion.IsAuction ? findUser.Rate : nowQuestion.SpecialCost;
+                        findUser.Money += (type == AnswerType.Full) ? count : count / 2;
                         UpdateUser(findUser);
                         nextState = State.ShowAnswer;
                     }

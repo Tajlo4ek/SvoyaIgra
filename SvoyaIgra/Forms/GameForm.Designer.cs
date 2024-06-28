@@ -78,10 +78,10 @@
             this.imagePlayer.BackgroundImage = global::SvoyaIgra.Properties.Resources.Background;
             this.imagePlayer.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
             this.imagePlayer.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.imagePlayer.Location = new System.Drawing.Point(150, 25);
+            this.imagePlayer.Location = new System.Drawing.Point(150, 22);
             this.imagePlayer.Margin = new System.Windows.Forms.Padding(0);
             this.imagePlayer.Name = "imagePlayer";
-            this.imagePlayer.Size = new System.Drawing.Size(500, 300);
+            this.imagePlayer.Size = new System.Drawing.Size(500, 303);
             this.imagePlayer.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.imagePlayer.TabIndex = 3;
             this.imagePlayer.TabStop = false;
@@ -91,9 +91,9 @@
             this.pbRoundData.BackgroundImage = global::SvoyaIgra.Properties.Resources.Background;
             this.pbRoundData.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
             this.pbRoundData.InitialImage = global::SvoyaIgra.Properties.Resources.Background;
-            this.pbRoundData.Location = new System.Drawing.Point(150, 25);
+            this.pbRoundData.Location = new System.Drawing.Point(150, 22);
             this.pbRoundData.Name = "pbRoundData";
-            this.pbRoundData.Size = new System.Drawing.Size(500, 300);
+            this.pbRoundData.Size = new System.Drawing.Size(500, 303);
             this.pbRoundData.TabIndex = 4;
             this.pbRoundData.TabStop = false;
             this.pbRoundData.MouseDown += new System.Windows.Forms.MouseEventHandler(this.PbRoundData_MouseDown);
@@ -102,10 +102,10 @@
             // 
             // rtbChat
             // 
-            this.rtbChat.Location = new System.Drawing.Point(656, 25);
+            this.rtbChat.Location = new System.Drawing.Point(656, 12);
             this.rtbChat.Name = "rtbChat";
             this.rtbChat.ReadOnly = true;
-            this.rtbChat.Size = new System.Drawing.Size(116, 300);
+            this.rtbChat.Size = new System.Drawing.Size(116, 313);
             this.rtbChat.TabIndex = 5;
             this.rtbChat.TabStop = false;
             this.rtbChat.Text = "";
@@ -241,6 +241,7 @@
             this.btnAnsHalf.TabIndex = 1;
             this.btnAnsHalf.Text = "Половина";
             this.btnAnsHalf.UseVisualStyleBackColor = true;
+            this.btnAnsHalf.Click += new System.EventHandler(this.BtnAnsHalf_Click);
             // 
             // pbAnswer
             // 
@@ -268,7 +269,7 @@
             // 
             this.pbAdminImage.ErrorImage = global::SvoyaIgra.Properties.Resources.NoImg;
             this.pbAdminImage.InitialImage = null;
-            this.pbAdminImage.Location = new System.Drawing.Point(9, 43);
+            this.pbAdminImage.Location = new System.Drawing.Point(9, 11);
             this.pbAdminImage.Name = "pbAdminImage";
             this.pbAdminImage.Size = new System.Drawing.Size(132, 133);
             this.pbAdminImage.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
@@ -279,7 +280,7 @@
             // 
             this.pbAdminName.BackColor = System.Drawing.Color.Transparent;
             this.pbAdminName.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
-            this.pbAdminName.Location = new System.Drawing.Point(9, 11);
+            this.pbAdminName.Location = new System.Drawing.Point(9, 150);
             this.pbAdminName.Name = "pbAdminName";
             this.pbAdminName.Size = new System.Drawing.Size(132, 26);
             this.pbAdminName.TabIndex = 15;
@@ -289,7 +290,7 @@
             // 
             this.pbProgressBar.ErrorImage = null;
             this.pbProgressBar.InitialImage = null;
-            this.pbProgressBar.Location = new System.Drawing.Point(150, 12);
+            this.pbProgressBar.Location = new System.Drawing.Point(150, 9);
             this.pbProgressBar.Name = "pbProgressBar";
             this.pbProgressBar.Size = new System.Drawing.Size(500, 10);
             this.pbProgressBar.TabIndex = 17;

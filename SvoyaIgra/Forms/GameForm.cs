@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
 using SvoyaIgra.Extensions;
+using SvoyaIgra.Utils.Controllers;
 
 namespace SvoyaIgra.Forms
 {
@@ -26,7 +27,7 @@ namespace SvoyaIgra.Forms
         public Action OnSkipAction;
         public Action<string> OnUserClick;
         public Action OnAnswerClick;
-        public Action<bool> OnCheckUserAns;
+        public Action<GameController.AnswerType> OnCheckUserAns;
         public Action<string> OnKickUser;
         public Action<string> OnConfigUserMoney;
         public Action OnCloseAction;
@@ -676,7 +677,7 @@ namespace SvoyaIgra.Forms
                 {
                     isWaitAnswer = true;
 
-                    progressBarAnswerController.SetMaxValue(this.timeMs);
+                    progressBarAnswerController.SetMaxValue(timeSec * 1000);
                     progressBarAnswerController.SetValue(0);
                     pbProgressBar.Visible = true;
                     auctionControl.Visible = false;
@@ -710,12 +711,17 @@ namespace SvoyaIgra.Forms
 
         private void BtnAnsTrue_Click(object sender, EventArgs e)
         {
-            OnCheckUserAns(true);
+            OnCheckUserAns(GameController.AnswerType.Full);
         }
 
         private void BtnAnsFalse_Click(object sender, EventArgs e)
         {
-            OnCheckUserAns(false);
+            OnCheckUserAns(GameController.AnswerType.Fail);
+        }
+
+        private void BtnAnsHalf_Click(object sender, EventArgs e)
+        {
+            OnCheckUserAns(GameController.AnswerType.Half);
         }
 
         public void SetCanAnswer(bool can)
@@ -947,6 +953,8 @@ namespace SvoyaIgra.Forms
                 }
             }
         }
+
+
     }
 }
 
